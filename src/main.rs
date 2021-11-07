@@ -1,6 +1,5 @@
-use crate::example::main::*;
-
-mod example;
+use crate::example::main::*; // module to run
+mod example; // module to run
 
 fn main() {
   let result = run();

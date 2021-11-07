@@ -22,4 +22,3 @@ pub fn run() -> Result<()> {
   dbg!(&exploded_df);
   Ok(())
 }
-
