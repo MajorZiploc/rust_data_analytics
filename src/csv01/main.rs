@@ -7,6 +7,7 @@ use std::io::{Error, ErrorKind};
 use serde::Deserialize;
 
 #[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
 struct Config {
   file_locations: HashMap<String, String>
 }
