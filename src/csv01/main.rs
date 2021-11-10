@@ -1,4 +1,5 @@
 use polars::prelude::*;
+use std::result::Result as StdResult;
 use serde::Deserialize;
 use std::collections::HashMap;
 use std::env;
@@ -12,7 +13,7 @@ struct Config {
   file_locations: HashMap<String, String>,
 }
 
-fn set_full_paths(file_locations: HashMap<String, String>) -> std::result::Result<HashMap<String, String>, Error> {
+fn set_full_paths(file_locations: HashMap<String, String>) -> StdResult<HashMap<String, String>, Error> {
   let project_root = get_project_root()?.join("data").join("csv01");
   let full_file_locations = file_locations
     .iter()
@@ -21,7 +22,7 @@ fn set_full_paths(file_locations: HashMap<String, String>) -> std::result::Resul
   Ok(full_file_locations)
 }
 
-fn get_project_root() -> std::result::Result<PathBuf, Error> {
+fn get_project_root() -> StdResult<PathBuf, Error> {
   let exe = env::current_exe()?;
   let project_root = exe
     .parent()
@@ -31,7 +32,7 @@ fn get_project_root() -> std::result::Result<PathBuf, Error> {
   Ok(project_root.to_owned())
 }
 
-fn get_in_config() -> std::result::Result<Config, Error> {
+fn get_in_config() -> StdResult<Config, Error> {
   let project_root = get_project_root()?;
   let config_path = project_root.join("configs").join("csv01.json");
   let file = File::open(config_path)?;
@@ -39,7 +40,7 @@ fn get_in_config() -> std::result::Result<Config, Error> {
   Ok(in_config)
 }
 
-fn get_config() -> std::result::Result<Config, Error> {
+fn get_config() -> StdResult<Config, Error> {
   let in_config = get_in_config()?;
   let file_locations = set_full_paths(in_config.file_locations)?;
   Ok(Config { file_locations })
