@@ -18,7 +18,7 @@ struct FullConfig {
 }
 
 fn set_full_paths(file_locations: HashMap<String, String>) -> std::result::Result<HashMap<String, PathBuf>, Error> {
-  let project_root = get_project_root()?.join("data");
+  let project_root = get_project_root()?.join("data").join("csv01");
   let full_file_locations = file_locations.iter().map(|fl| (fl.0.to_owned(), project_root.join(fl.1))).collect();
   Ok(full_file_locations)
 }
@@ -51,12 +51,12 @@ fn get_config() -> std::result::Result<FullConfig, Error> {
 
 pub fn run() -> Result<()> {
   let config = get_config()?;
-  dbg!(config);
-  let path = get_project_root()?;
-  let df = CsvReader::from_path(path.join("data").join("csv01").join("data.csv"))?
-    .infer_schema(None)
-    .has_header(true)
-    .finish()?;
+  dbg!(&config);
+  let data_path = config
+    .full_file_locations
+    .get("data")
+    .ok_or(PolarsError::Io(Error::new(ErrorKind::NotFound, "key not found in file locations map")))?;
+  let df = CsvReader::from_path(data_path)?.infer_schema(None).has_header(true).finish()?;
   dbg!(&df);
   Ok(())
 }
