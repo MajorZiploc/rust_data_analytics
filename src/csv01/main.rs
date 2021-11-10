@@ -1,32 +1,52 @@
 use polars::prelude::*;
+use serde::Deserialize;
 use std::collections::HashMap;
 use std::env;
 use std::fs::File;
-use std::path::{Path, PathBuf};
 use std::io::{Error, ErrorKind};
-use serde::Deserialize;
+use std::path::PathBuf;
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
-struct Config {
-  file_locations: HashMap<String, String>
+struct InConfig {
+  file_locations: HashMap<String, String>,
 }
 
-fn get_config() -> std::result::Result<Config, Error> {
-  let project_root = get_project_root()?;
-  let config_path = project_root.join("configs").join("csv01.json");
-  let file = File::open(config_path)?;
-  let config: Config = serde_json::from_reader(file)?;
-  Ok(config)
+#[derive(Debug)]
+struct FullConfig {
+  full_file_locations: HashMap<String, PathBuf>,
 }
 
-fn get_project_root() -> std::result::Result<Box<PathBuf>, Error> {
+fn set_full_paths(file_locations: HashMap<String, String>) -> std::result::Result<HashMap<String, PathBuf>, Error> {
+  let project_root = get_project_root()?.join("data");
+  let full_file_locations = file_locations.iter().map(|fl| (fl.0.to_owned(), project_root.join(fl.1))).collect();
+  Ok(full_file_locations)
+}
+
+fn get_project_root() -> std::result::Result<PathBuf, Error> {
   let exe = env::current_exe()?;
-  let project_root = exe.parent()
+  let project_root = exe
+    .parent()
     .and_then(|p| p.parent())
     .and_then(|p| p.parent())
     .ok_or(Error::new(ErrorKind::Other, "could not find root of project"))?;
-  Ok(Box::new(project_root.to_owned()))
+  Ok(project_root.to_owned())
+}
+
+fn get_in_config() -> std::result::Result<InConfig, Error> {
+  let project_root = get_project_root()?;
+  let config_path = project_root.join("configs").join("csv01.json");
+  let file = File::open(config_path)?;
+  let in_config: InConfig = serde_json::from_reader(file)?;
+  Ok(in_config)
+}
+
+fn get_config() -> std::result::Result<FullConfig, Error> {
+  let in_config = get_in_config()?;
+  let full_file_locations = set_full_paths(in_config.file_locations)?;
+  Ok(FullConfig {
+    full_file_locations,
+  })
 }
 
 pub fn run() -> Result<()> {
@@ -36,8 +56,7 @@ pub fn run() -> Result<()> {
   let df = CsvReader::from_path(path.join("data").join("csv01").join("data.csv"))?
     .infer_schema(None)
     .has_header(true)
-    .finish()?
-    ;
+    .finish()?;
   dbg!(&df);
   Ok(())
 }
