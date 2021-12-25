@@ -1,6 +1,9 @@
 # vim: filetype=bash
 
-run MODULE_PATH:
+run:
+  RUSTFLAGS="-Awarnings" cargo run;
+
+run-module MODULE_PATH:
   #!/usr/bin/env bash
   . ~/.bashrc;
   set -euo pipefail
