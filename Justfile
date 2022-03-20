@@ -21,6 +21,9 @@ format:
 build:
   cargo build
 
+clean:
+  cargo clean
+
 test:
   RUSTFLAGS="-Awarnings" cargo test
 
