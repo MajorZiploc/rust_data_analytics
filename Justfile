@@ -1,7 +1,7 @@
 # vim: filetype=bash
 
 run:
-  RUSTFLAGS="-Awarnings" cargo run;
+  RUSTFLAGS="-Awarnings -Cembed-bitcode=no" cargo run;
 
 run-module MODULE_PATH:
   #!/usr/bin/env bash
