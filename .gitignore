@@ -11,3 +11,7 @@ Cargo.lock
 *.pdb
 
 data
+
+tags
+
+Session.vim
