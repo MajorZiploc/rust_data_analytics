@@ -15,3 +15,5 @@ data
 tags
 
 Session.vim
+
+cscope.out
